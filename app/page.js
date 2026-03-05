@@ -182,7 +182,9 @@ const compressImage = (dataUrl, maxWidth = 1600, quality = 0.7) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  setError(null);
+  const originalKB = Math.round(file.size / 1024);
+  setError(`Original file: ${originalKB} KB. Compressing...`);
+
   const reader = new FileReader();
   reader.onload = (ev) => {
     const img = new Image();
@@ -196,11 +198,10 @@ const compressImage = (dataUrl, maxWidth = 1600, quality = 0.7) => {
       canvas.getContext("2d").drawImage(img, 0, 0, w, h);
       const compressed = canvas.toDataURL("image/jpeg", 0.4);
       const base64 = compressed.split(",")[1];
-      
-      // Debug: check size
-      const sizeKB = Math.round(base64.length * 0.75 / 1024);
-      console.log("Image size after compression: " + sizeKB + " KB");
-      
+      const compressedKB = Math.round(base64.length * 0.75 / 1024);
+
+      setError(`Original: ${originalKB} KB → Compressed: ${compressedKB} KB (${w}x${Math.round(h)}px). Sending...`);
+
       setImage(base64);
       setImagePreview(compressed);
       processImage(base64, "image/jpeg");
@@ -209,6 +210,7 @@ const compressImage = (dataUrl, maxWidth = 1600, quality = 0.7) => {
   };
   reader.readAsDataURL(file);
 }, []);
+  
   
   // ─── PROCESS IMAGE ───
   const processImage = async (base64Image, mimeType) => {
