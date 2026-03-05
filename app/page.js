@@ -187,7 +187,8 @@ const compressImage = (dataUrl, maxWidth = 1600, quality = 0.7) => {
   reader.onload = async (ev) => {
     try {
       // Compress before sending
-      const compressed = await compressImage(ev.target.result);
+      // const compressed = await compressImage(ev.target.result);
+      const compressed = await compressImage(ev.target.result, 1024, 0.5);
       const base64 = compressed.split(",")[1];
       setImage(base64);
       setImagePreview(compressed);
