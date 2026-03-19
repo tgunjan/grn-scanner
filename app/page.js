@@ -150,23 +150,68 @@ export default function GRNScanner() {
   const [grnNumber, setGrnNumber] = useState(null);
   const fileInputRef = useRef(null);
 
-  // ─── HANDLE IMAGE CAPTURE ───
-  const handleCapture = useCallback((e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // ─── COMPRESS IMAGE ───
+const compressImage = (dataUrl, maxWidth = 1600, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
 
-    setError(null);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result.split(",")[1];
-      const preview = ev.target.result;
-      setImage(base64);
-      setImagePreview(preview);
-      processImage(base64, file.type);
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      const compressed = canvas.toDataURL("image/jpeg", quality);
+      resolve(compressed);
     };
-    reader.readAsDataURL(file);
-  }, []);
+    img.src = dataUrl;
+  });
+};
+  
+  // ─── HANDLE IMAGE CAPTURE ───
+  
+  const handleCapture = useCallback((e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
+  const originalKB = Math.round(file.size / 1024);
+  setError(`Original file: ${originalKB} KB. Compressing...`);
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX) { h = (h * MAX) / w; w = MAX; }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL("image/jpeg", 0.7);
+      const base64 = compressed.split(",")[1];
+      const compressedKB = Math.round(base64.length * 0.75 / 1024);
+
+      setError(`Original: ${originalKB} KB → Compressed: ${compressedKB} KB (${w}x${Math.round(h)}px). Sending...`);
+
+      setImage(base64);
+      setImagePreview(compressed);
+      processImage(base64, "image/jpeg");
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}, []);
+  
+  
   // ─── PROCESS IMAGE ───
   const processImage = async (base64Image, mimeType) => {
     setStep("processing");
@@ -558,7 +603,6 @@ export default function GRNScanner() {
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
             onChange={handleCapture}
             style={{ display: "none" }}
             id="challan-input"
