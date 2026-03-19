@@ -20,7 +20,7 @@ Fields to extract:
 4. **material_description** — What material is being delivered (e.g., OPC 53 Grade Cement, 20mm Aggregate, M-Sand, Fly Ash, GGBS, Admixture). Include grade/specification if mentioned.
 5. **quantity** — Quantity loaded / dispatched (look for Qty, Quantity, Weight, MT, Tonnes, KG, Bags, Nos)
 6. **quantity_unit** — Unit of measurement (MT, Tonnes, KG, Bags, Cubic Meter, Nos, Ltrs)
-7. **vehicle_number** — Truck / Vehicle registration number (Indian format like MH12AB1234)
+7. **vehicle_number** — Truck / Vehicle / Lorry registration number. Indian vehicle numbers follow a strict format: 2-letter State Code + 2-digit RTO Code + 2-letter Series + 4-digit Unique Number (e.g., MH12AB1234, GJ05CD4567). The number may be written with or without spaces (MH 12 AB 1234 or MH12AB1234). If you can only partially read it, scan nearby areas (below, above, beside) for the missing parts — a valid Indian vehicle number must be exactly 10 characters. Do not return incomplete numbers; look harder across the entire document.
 8. **lr_number** — Lorry Receipt number / LR No / Transport document number (may not be present on all challans)
 9. **driver_name** — Driver name (may be handwritten, may not be present)
 10. **delivery_site** — Consignee / Delivery address / Site name (where the material is being delivered)
