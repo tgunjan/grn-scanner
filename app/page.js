@@ -69,8 +69,7 @@ const FIELD_CONFIG = [
   { key: "material_description", label: "Material", icon: "🧱", group: "challan" },
   { key: "quantity", label: "Quantity", icon: "⚖️", group: "challan" },
   { key: "quantity_unit", label: "Unit", icon: "📏", group: "challan" },
-  { key: "vehicle_number", label: "Vehicle No.", icon: "🚛", group: "challan" },
-  { key: "lr_number", label: "LR Number", icon: "📋", group: "challan" },
+  { key: "vehicle_number", label: "Vehicle / Lorry No.", icon: "🚛", group: "challan" },
   { key: "driver_name", label: "Driver Name", icon: "👤", group: "challan" },
   { key: "delivery_site", label: "Delivery Site", icon: "📍", group: "challan" },
   { key: "gross_weight", label: "Gross Weight", icon: "⬆️", group: "weight" },
@@ -790,7 +789,7 @@ const compressImage = (dataUrl, maxWidth = 1600, quality = 0.7) => {
                 return (
                   <div key={field.key} style={{ display: "flex", gap: 8 }}>
                     <span style={{ color: "var(--text-muted)", whiteSpace: "nowrap" }}>{field.label}:</span>
-                    <span style={{ color: val?.confidence === "low" ? "var(--error)" : "var(--text-primary)" }}>
+                    <span style={{ color: val?.confidence === "low" ? "var(--error)" : val?.confidence === "medium" ? "var(--warning)" : "#FFFFFF" }}>
                       {value}
                     </span>
                   </div>
