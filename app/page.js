@@ -697,9 +697,6 @@ export default function GRNScanner() {
 
   // ─── RENDER: REVIEW EXTRACTED FIELDS ───
   if (step === "review") {
-    const challanFields = FIELD_CONFIG.filter((f) => f.group === "challan");
-    const weightFields = FIELD_CONFIG.filter((f) => f.group === "weight");
-
     return (
       <div style={s.container}>
         <header style={s.header}>
@@ -731,98 +728,31 @@ export default function GRNScanner() {
             </div>
           )}
 
-          {/* Challan fields */}
+          {/* All extracted fields as Name: Value text block */}
           <div style={s.card} className="fade-up fade-up-delay-2">
-            <div style={s.cardTitle}>Challan Details (AI Extracted)</div>
-            {challanFields.map((field) => {
-              const raw = extracted?.fields?.[field.key];
-              return (
-                <div key={field.key} style={s.fieldRow}>
-                  <div style={s.fieldLabel}>
-                    <span>{field.icon}</span>
-                    <span>{field.label}</span>
-                    {raw?.confidence && <ConfBadge level={raw.confidence} />}
+            <div style={s.cardTitle}>Extracted Fields (AI)</div>
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 13,
+                lineHeight: 1.9,
+                color: "var(--text-primary)",
+              }}
+            >
+              {FIELD_CONFIG.map((field) => {
+                const val = extracted?.fields?.[field.key];
+                const value = val?.value;
+                if (!value) return null;
+                return (
+                  <div key={field.key} style={{ display: "flex", gap: 8 }}>
+                    <span style={{ color: "var(--text-muted)", whiteSpace: "nowrap" }}>{field.label}:</span>
+                    <span style={{ color: val?.confidence === "low" ? "var(--error)" : "var(--text-primary)" }}>
+                      {value}
+                    </span>
                   </div>
-                  <input
-                    style={{
-                      ...s.fieldInput,
-                      borderColor: raw?.confidence === "low" ? "var(--error)" : "var(--border)",
-                    }}
-                    value={editedFields[field.key] || ""}
-                    onChange={(e) => updateField(field.key, e.target.value)}
-                    placeholder={`Enter ${field.label.toLowerCase()}`}
-                    onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-                    onBlur={(e) => (e.target.style.borderColor = raw?.confidence === "low" ? "var(--error)" : "var(--border)")}
-                  />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Weight fields from challan */}
-          <div style={s.card} className="fade-up fade-up-delay-3">
-            <div style={s.cardTitle}>Weight Data (from Challan)</div>
-            {weightFields.map((field) => {
-              const raw = extracted?.fields?.[field.key];
-              return (
-                <div key={field.key} style={s.fieldRow}>
-                  <div style={s.fieldLabel}>
-                    <span>{field.icon}</span>
-                    <span>{field.label}</span>
-                    {raw?.confidence && <ConfBadge level={raw.confidence} />}
-                  </div>
-                  <input
-                    style={s.fieldInput}
-                    value={editedFields[field.key] || ""}
-                    onChange={(e) => updateField(field.key, e.target.value)}
-                    placeholder="Not on challan"
-                    onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-                    onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
-                  />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Weighbridge manual entry */}
-          <div style={s.weighbridgeSection} className="fade-up fade-up-delay-4">
-            <div style={{ ...s.cardTitle, color: "var(--warning)" }}>⚖️ Weighbridge Reading (Manual)</div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 10 }}>
-              Enter actual weighbridge net weight for quantity verification
+                );
+              })}
             </div>
-            <input
-              style={{ ...s.fieldInput, borderColor: "rgba(245, 158, 11, 0.3)" }}
-              value={weighbridge}
-              onChange={(e) => setWeighbridge(e.target.value)}
-              placeholder="e.g. 28.35 MT"
-              onFocus={(e) => (e.target.style.borderColor = "var(--warning)")}
-              onBlur={(e) => (e.target.style.borderColor = "rgba(245, 158, 11, 0.3)")}
-            />
-            {weighbridge && editedFields.quantity && (
-              <div
-                style={{
-                  marginTop: 8,
-                  fontSize: 12,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  color:
-                    Math.abs(parseFloat(weighbridge) - parseFloat(editedFields.quantity)) /
-                      parseFloat(editedFields.quantity) >
-                    0.02
-                      ? "var(--error)"
-                      : "var(--success)",
-                }}
-              >
-                {(() => {
-                  const wb = parseFloat(weighbridge);
-                  const ch = parseFloat(editedFields.quantity);
-                  if (isNaN(wb) || isNaN(ch)) return "";
-                  const diff = wb - ch;
-                  const pct = ((diff / ch) * 100).toFixed(1);
-                  if (Math.abs(diff) < 0.01) return "✓ Exact match with challan";
-                  return `${diff > 0 ? "+" : ""}${diff.toFixed(2)} MT (${pct}%) vs challan qty`;
-                })()}
-              </div>
-            )}
           </div>
 
           {/* PO Match */}
